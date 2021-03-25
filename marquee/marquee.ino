@@ -1224,7 +1224,7 @@ String getTempSymbol() {
   if (IS_METRIC) {
     rtnValue = "C";
   }
-  return rtnValue;
+  return (char(247) + rtnValue);
 }
 
 String getSpeedSymbol() {
