@@ -1709,6 +1709,9 @@ String decodeHtmlString(String msg) {
   decodedMsg.replace("%3E", ">");
   decodedMsg.replace("%3F", "?");
   decodedMsg.replace("%40", "@");
+  decodedMsg.replace("%C4", "AE");
+  decodedMsg.replace("%D6", "OE");
+  decodedMsg.replace("%DC", "UE");
   decodedMsg.toUpperCase();
   decodedMsg.trim();
   return decodedMsg;
