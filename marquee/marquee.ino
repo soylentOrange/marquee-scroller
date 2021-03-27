@@ -235,13 +235,21 @@ void setup() {
   matrix.fillScreen(LOW); // show black
   centerPrint("hello");
 
-  tone(BUZZER_PIN, 415, 500);
-  delay(500 * 1.3);
-  tone(BUZZER_PIN, 466, 500);
-  delay(500 * 1.3);
-  tone(BUZZER_PIN, 370, 1000);
-  delay(1000 * 1.3);
-  noTone(BUZZER_PIN);
+  // Set Buzzer-Pin to output
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(250);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  //tone(BUZZER_PIN, 415, 500);
+  //delay(500 * 1.3);
+  //tone(BUZZER_PIN, 466, 500);
+  //delay(500 * 1.3);
+  //tone(BUZZER_PIN, 370, 1000);
+  //delay(1000 * 1.3);
+  //noTone(BUZZER_PIN);
 
   for (int inx = 0; inx <= 15; inx++) {
     matrix.setIntensity(inx);
@@ -380,7 +388,7 @@ void loop() {
       displayRefreshCount = minutesBetweenScrolling;
       String temperature = weatherClient.getTempRounded(0);
       String description = weatherClient.getDescription(0);
-      description.toUpperCase();
+      //description.toUpperCase(); // still can read small chars
       String msg;
       msg += " ";
 
@@ -395,7 +403,6 @@ void loop() {
 
       //show high/low temperature
       if (SHOW_HIGHLOW) {
-        msg += "High/Low:" + weatherClient.getHigh(0) + "/" + weatherClient.getLow(0) + " " + getTempSymbol() + "  ";
       }
       
       if (SHOW_CONDITION) {
@@ -1209,14 +1216,14 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 void flashLED(int number, int delayTime) {
   for (int inx = 0; inx < number; inx++) {
-    tone(BUZZER_PIN, 440, delayTime);
+    //tone(BUZZER_PIN, 440, delayTime);
     delay(delayTime);
     digitalWrite(externalLight, LOW);
     delay(delayTime);
     digitalWrite(externalLight, HIGH);
     delay(delayTime);
   }
-  noTone(BUZZER_PIN);
+  //noTone(BUZZER_PIN);
 }
 
 String getTempSymbol() {
@@ -1224,8 +1231,8 @@ String getTempSymbol() {
   if (IS_METRIC) {
     rtnValue = "C";
   }
-  return (char(247) + rtnValue);
-}
+  return ("°" + rtnValue);
+} 
 
 String getSpeedSymbol() {
   String rtnValue = "mph";
@@ -1582,6 +1589,19 @@ void readCityIds() {
 }
 
 void scrollMessage(String msg) {
+  
+  // Replace "unprintable" characters
+  Serial.println("Scroll-before: " + msg);
+  msg.replace("Ä", "AE");
+  msg.replace("Ö", "OE");
+  msg.replace("Ü", "UE"); 
+  msg.replace("ä", "ae");
+  msg.replace("ö", "oe");
+  msg.replace("ü", "ue"); 
+  msg.replace("ß", "ss");  
+  msg.replace("°", String(char(247))); // degree symbol from adafruit font
+  Serial.println("Scroll-after: " + msg);  
+  
   msg += " "; // add a space at the end
   for ( int i = 0 ; i < width * msg.length() + matrix.width() - 1 - spacer; i++ ) {
     if (WEBSERVER_ENABLED) {
@@ -1709,10 +1729,7 @@ String decodeHtmlString(String msg) {
   decodedMsg.replace("%3E", ">");
   decodedMsg.replace("%3F", "?");
   decodedMsg.replace("%40", "@");
-  decodedMsg.replace("%C4", "AE");
-  decodedMsg.replace("%D6", "OE");
-  decodedMsg.replace("%DC", "UE");
-  decodedMsg.toUpperCase();
+  //decodedMsg.toUpperCase(); // I still can read small letters well
   decodedMsg.trim();
   return decodedMsg;
 }
